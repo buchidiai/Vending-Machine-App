@@ -7,6 +7,10 @@ export default class Api {
   };
 
   buyItem = async (amount, id) => {
-    return await axios.post(`${URL}/money/${amount}/item/${id}`);
+    return await axios.post(`${URL}/money/${amount}/item/${id}`, {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
   };
 }

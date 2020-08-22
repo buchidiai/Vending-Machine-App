@@ -9,18 +9,32 @@ export const Menu = ({
   itemToBuy,
   onMakePurchaseClick,
   error,
+  moneyAmounts,
+  total,
+  change,
+  onReturnChangeClick,
+  onSuccess,
 }) => {
   return (
     <Col lg={4}>
-      <AddMoney onAddMoneyClick={onAddMoneyClick} />
+      <AddMoney
+        onAddMoneyClick={onAddMoneyClick}
+        moneyAmounts={moneyAmounts}
+        total={total}
+      />
       <hr />
       <BuyItem
+        onSuccess={onSuccess}
         itemToBuy={itemToBuy}
         onMakePurchaseClick={onMakePurchaseClick}
         error={error}
       />
       <hr />
-      <Change />
+      <Change
+        onReturnChangeClick={onReturnChangeClick}
+        total={total}
+        change={change}
+      />
     </Col>
   );
 };

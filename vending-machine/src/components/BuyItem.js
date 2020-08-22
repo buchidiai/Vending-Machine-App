@@ -6,14 +6,13 @@ export class BuyItem extends Component {
       itemToBuy: { id, name, price, quantity },
       onMakePurchaseClick,
       error,
+      onSuccess,
     } = this.props;
     return (
       <div className="text-center">
         <p>Messages</p>
-        <div
-          style={{ border: "1px solid black", borderRadius: "2px!important" }}
-        >
-          <p>{error.hasError ? error.message : " "}</p>
+        <div>
+          <p>{error.hasError ? error.message : onSuccess.message}</p>
         </div>
         <div>
           <p>{`Item: ${id}`}</p>

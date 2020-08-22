@@ -1,121 +1,29 @@
-import React, { useState } from "react";
+import React from "react";
 import { Inventory } from "../components/Inventory";
 import { Menu } from "../components/Menu";
 import { Header } from "../components/Header";
-import { Container, Row, Col, Navbar } from "react-bootstrap";
+import { getChangeDenomination } from "../helper/helperFunction";
+import { Container, Row, Col } from "react-bootstrap";
 import Api from "../service/Api";
-
-const inventory = [
-  {
-    id: 1,
-    name: "Snickers",
-    price: 1.5,
-    quantity: 0,
-  },
-  {
-    id: 42,
-    name: "M&M's",
-    price: 1.25,
-    quantity: 8,
-  },
-  {
-    id: 33,
-    name: "Almond Joy",
-    price: 1.25,
-    quantity: 11,
-  },
-  {
-    id: 74,
-    name: "Milky Way",
-    price: 1.65,
-    quantity: 3,
-  },
-  {
-    id: 5,
-    name: "Payday",
-    price: 1.75,
-    quantity: 2,
-  },
-  {
-    id: 16,
-    name: "Reese's",
-    price: 1.5,
-    quantity: 5,
-  },
-  {
-    id: 87,
-    name: "Pringles",
-    price: 2.35,
-    quantity: 4,
-  },
-  {
-    id: 82,
-    name: "Cheez-Its",
-    price: 2,
-    quantity: 6,
-  },
-  {
-    id: 9,
-    name: "Doritos",
-    price: 1.95,
-    quantity: 7,
-  },
-  {
-    id: 376,
-    name: "Almond Joy",
-    price: 1.25,
-    quantity: 11,
-  },
-  {
-    id: 7344,
-    name: "Milky Way",
-    price: 1.65,
-    quantity: 3,
-  },
-  {
-    id: 455,
-    name: "Payday",
-    price: 1.75,
-    quantity: 2,
-  },
-  {
-    id: 1643,
-    name: "Reese's",
-    price: 1.5,
-    quantity: 5,
-  },
-  {
-    id: 8437,
-    name: "Pringles",
-    price: 2.35,
-    quantity: 4,
-  },
-  {
-    id: 8432,
-    name: "Cheez-Its",
-    price: 2,
-    quantity: 6,
-  },
-  {
-    id: 934,
-    name: "Doritos",
-    price: 1.95,
-    quantity: 7,
-  },
-];
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      amounts: [1.0, 0.25, 0.1, 0.05],
+      total: 0,
       inventory: [],
       itemToBuy: {
         id: "",
         price: "",
       },
       amount: "",
-      change: {},
+      change: [],
+      returnChange: false,
       error: {
         hasError: false,
+        message: "",
+      },
+      onSuccess: {
         message: "",
       },
     };
@@ -127,51 +35,79 @@ class App extends React.Component {
   }
 
   handleFetchAllItems = async () => {
-    const items = await this.api.getAll();
-    this.setState({ inventory: items.data });
+    try {
+      const items = await this.api.getAll();
+      this.setState({ inventory: items.data });
+    } catch (error) {
+      this.setState({
+        error: { hasError: true, message: error.response.data.message },
+      });
+    }
   };
 
-  handleOnAddMoneyClick = (amount, b) => {
-    console.log(amount, "amount");
-    console.log(b, "b");
-
-    this.setState({ amount: amount });
+  handleOnAddMoneyClick = (amount) => {
+    this.setState({ total: this.state.total + amount, change: [] });
   };
 
   handleBuyItem = async (item) => {
-    const { id, name, price, quantity } = item;
+    const { id } = item;
+    const { total } = this.state;
 
-    if (quantity <= 0) {
+    try {
+      const items = await this.api.buyItem(total.toFixed(2), id);
+
       this.setState({
-        error: {
-          hasError: true,
-          message: "SOLD OUT!!!",
-        },
+        total: 0,
+        change: items.data,
+        onSuccess: { message: "Thank you" },
       });
-      return;
+
+      this.handleFetchAllItems();
+    } catch (error) {
+      this.setState({
+        error: { hasError: true, message: error.response.data.message },
+      });
+      this.handleFetchAllItems();
     }
-
-    //check money inserted
-
-    //make api call
-    // const items = await this.api.buyItem();
-    // this.setState({ inventory: items.data });
   };
 
   handleOnItemClick = (item) => {
-    this.setState({ itemToBuy: item, error: { hasError: false, message: "" } });
+    this.setState({
+      itemToBuy: item,
+      change: [],
+      error: { hasError: false, message: "" },
+      onSuccess: { message: "" },
+    });
+  };
+
+  handleOnReturnChange = () => {
+    const change = getChangeDenomination(this.state.total);
+
+    this.setState({
+      total: 0,
+      change: change,
+      onSuccess: { message: `$${this.state.total.toFixed(2)} returned` },
+    });
   };
 
   render() {
-    const { itemToBuy, error } = this.state;
+    const {
+      inventory,
+      itemToBuy,
+      error,
+      change,
+      returnChange,
+      onSuccess,
+      total,
+    } = this.state;
     return (
       <Container fluid className="p-5">
         <Header title={"VendingMachine"} />
-
+        <hr />
         <Row className="m-4">
           <Col lg={8}>
-            <Row>
-              {[...inventory, ...inventory].map((p, i) => {
+            <Row md={4}>
+              {inventory.map((p, i) => {
                 return (
                   <Inventory
                     item={p}
@@ -184,9 +120,16 @@ class App extends React.Component {
           </Col>
 
           <Menu
+            total={total}
+            onSuccess={onSuccess}
+            hideReturnChange={returnChange}
+            change={change}
+            moneyAmounts={this.state.amounts}
+            total={this.state.total}
             onAddMoneyClick={this.handleOnAddMoneyClick}
             itemToBuy={itemToBuy}
             onMakePurchaseClick={this.handleBuyItem}
+            onReturnChangeClick={this.handleOnReturnChange}
             error={error}
           />
         </Row>
