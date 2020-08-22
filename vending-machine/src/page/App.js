@@ -1,10 +1,12 @@
 import React from "react";
-import { Inventory } from "../components/Inventory";
+import { ItemCard } from "../components/ItemCard";
 import { Menu } from "../components/Menu";
 import { Header } from "../components/Header";
+import { LoadingIndicator } from "../components/LoadingIndicator";
 import { getChangeDenomination } from "../helper/helperFunction";
 import { Container, Row, Col } from "react-bootstrap";
 import Api from "../service/Api";
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -12,6 +14,8 @@ class App extends React.Component {
       amounts: [1.0, 0.25, 0.1, 0.05],
       total: 0,
       inventory: [],
+      loading: true,
+      buttonLoading: false,
       itemToBuy: {
         id: "",
         price: "",
@@ -31,16 +35,23 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.handleFetchAllItems();
+    setTimeout(() => {
+      this.handleFetchAllItems();
+    }, 2000);
   }
 
   handleFetchAllItems = async () => {
     try {
       const items = await this.api.getAll();
-      this.setState({ inventory: items.data });
+
+      this.setState({ inventory: items.data, loading: false });
     } catch (error) {
       this.setState({
-        error: { hasError: true, message: error.response.data.message },
+        error: {
+          hasError: true,
+          message: error.response.data.message,
+          loading: false,
+        },
       });
     }
   };
@@ -53,20 +64,30 @@ class App extends React.Component {
     const { id } = item;
     const { total } = this.state;
 
+    this.setState({
+      error: { hasError: false, message: "" },
+      buttonLoading: true,
+    });
+
     try {
       const items = await this.api.buyItem(total.toFixed(2), id);
 
       this.setState({
+        buttonLoading: false,
         total: 0,
         change: items.data,
-        onSuccess: { message: "Thank you" },
+        onSuccess: { message: "Thank you!!" },
       });
 
       this.handleFetchAllItems();
     } catch (error) {
-      this.setState({
-        error: { hasError: true, message: error.response.data.message },
-      });
+      setTimeout(() => {
+        this.setState({
+          error: { hasError: true, message: error.response.data.message },
+          buttonLoading: false,
+        });
+      }, 500);
+
       this.handleFetchAllItems();
     }
   };
@@ -81,12 +102,19 @@ class App extends React.Component {
   };
 
   handleOnReturnChange = () => {
-    const change = getChangeDenomination(this.state.total);
+    const { total } = this.state;
+    const change = getChangeDenomination(total);
+
+    this.setState({ change: [] });
 
     this.setState({
+      error: { hasError: false, message: "" },
       total: 0,
       change: change,
-      onSuccess: { message: `$${this.state.total.toFixed(2)} returned` },
+      onSuccess: {
+        message:
+          total === 0 ? "No money Inserted." : `$${total.toFixed(2)} returned.`,
+      },
     });
   };
 
@@ -99,24 +127,32 @@ class App extends React.Component {
       returnChange,
       onSuccess,
       total,
+      loading,
+      buttonLoading,
     } = this.state;
     return (
       <Container fluid className="p-5">
-        <Header title={"VendingMachine"} />
+        <Header title={"Vending Machine"} />
         <hr />
-        <Row className="m-4">
-          <Col lg={8}>
-            <Row md={4}>
-              {inventory.map((p, i) => {
-                return (
-                  <Inventory
-                    item={p}
-                    key={i}
-                    onItemClick={() => this.handleOnItemClick(p)}
-                  />
-                );
-              })}
-            </Row>
+        <Row>
+          <Col sm={8}>
+            {loading ? (
+              <Row lg={3}>
+                <LoadingIndicator />
+              </Row>
+            ) : (
+              <Row lg={3}>
+                {inventory.map((p, i) => {
+                  return (
+                    <ItemCard
+                      item={p}
+                      key={i}
+                      onItemClick={() => this.handleOnItemClick(p)}
+                    />
+                  );
+                })}
+              </Row>
+            )}
           </Col>
 
           <Menu
@@ -125,12 +161,12 @@ class App extends React.Component {
             hideReturnChange={returnChange}
             change={change}
             moneyAmounts={this.state.amounts}
-            total={this.state.total}
             onAddMoneyClick={this.handleOnAddMoneyClick}
             itemToBuy={itemToBuy}
             onMakePurchaseClick={this.handleBuyItem}
             onReturnChangeClick={this.handleOnReturnChange}
             error={error}
+            buttonLoading={buttonLoading}
           />
         </Row>
       </Container>

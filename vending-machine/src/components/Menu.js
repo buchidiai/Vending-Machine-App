@@ -1,5 +1,5 @@
 import React from "react";
-import Change from "./Change";
+import { Change } from "./Change";
 import BuyItem from "./BuyItem";
 import { Col } from "react-bootstrap";
 import { AddMoney } from "./AddMoney";
@@ -14,6 +14,7 @@ export const Menu = ({
   change,
   onReturnChangeClick,
   onSuccess,
+  buttonLoading,
 }) => {
   return (
     <Col lg={4}>
@@ -22,12 +23,13 @@ export const Menu = ({
         moneyAmounts={moneyAmounts}
         total={total}
       />
-      <hr />
+
       <BuyItem
         onSuccess={onSuccess}
         itemToBuy={itemToBuy}
         onMakePurchaseClick={onMakePurchaseClick}
         error={error}
+        buttonLoading={buttonLoading}
       />
       <hr />
       <Change

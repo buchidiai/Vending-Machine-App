@@ -1,5 +1,4 @@
 import React from "react";
-import Navbar from "react-bootstrap/Navbar";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
@@ -7,9 +6,7 @@ export const Header = ({ title }) => {
   return (
     <Row>
       <Col className="text-center">
-        <Navbar bg="light">
-          <Navbar.Brand href="#home">{title}</Navbar.Brand>
-        </Navbar>
+        <h1 className="text-center display-4 ">{title}</h1>
       </Col>
     </Row>
   );
