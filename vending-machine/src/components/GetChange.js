@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 
-export const Change = ({ onReturnChangeClick, total, change }) => {
+export const GetChange = ({ onReturnChangeClick, total, change }) => {
   const showChange = () => {
     const { quarters, dimes, nickels, pennies } = change;
 
@@ -35,7 +35,7 @@ export const Change = ({ onReturnChangeClick, total, change }) => {
   };
 
   return (
-    <Form className="text-center bg-light p-3">
+    <Form className="text-center bg-light p-3 shadow-3">
       <Form.Label className="font-weight-bold">Change</Form.Label>
       <Form.Group className=" justify-content-center ">
         <Form.Control
@@ -47,7 +47,7 @@ export const Change = ({ onReturnChangeClick, total, change }) => {
         />
       </Form.Group>
       <Button
-        className={"btn-danger w-50"}
+        className={"btn-danger w-50 grow"}
         as="input"
         type="button"
         value={`Return Change`}

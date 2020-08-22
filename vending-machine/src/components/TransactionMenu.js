@@ -1,15 +1,15 @@
 import React from "react";
-import { Change } from "./Change";
-import BuyItem from "./BuyItem";
+import { MoneyInput } from "./MoneyInput";
+import { PurchaseProduct } from "./PurchaseProduct";
+import { GetChange } from "./GetChange";
 import { Col } from "react-bootstrap";
-import { AddMoney } from "./AddMoney";
 
-export const Menu = ({
+export const TransactionMenu = ({
   onAddMoneyClick,
+  amounts,
   itemToBuy,
   onMakePurchaseClick,
   error,
-  moneyAmounts,
   total,
   change,
   onReturnChangeClick,
@@ -18,13 +18,14 @@ export const Menu = ({
 }) => {
   return (
     <Col lg={4}>
-      <AddMoney
+      <hr />
+      <MoneyInput
         onAddMoneyClick={onAddMoneyClick}
-        moneyAmounts={moneyAmounts}
+        moneyAmounts={amounts}
         total={total}
       />
-
-      <BuyItem
+      <hr />
+      <PurchaseProduct
         onSuccess={onSuccess}
         itemToBuy={itemToBuy}
         onMakePurchaseClick={onMakePurchaseClick}
@@ -32,11 +33,12 @@ export const Menu = ({
         buttonLoading={buttonLoading}
       />
       <hr />
-      <Change
+      <GetChange
         onReturnChangeClick={onReturnChangeClick}
         total={total}
         change={change}
       />
+      <hr />
     </Col>
   );
 };

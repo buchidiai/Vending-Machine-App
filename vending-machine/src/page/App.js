@@ -1,11 +1,12 @@
 import React from "react";
-import { ItemCard } from "../components/ItemCard";
-import { Menu } from "../components/Menu";
-import { Header } from "../components/Header";
-import { LoadingIndicator } from "../components/LoadingIndicator";
-import { getChangeDenomination } from "../helper/helperFunction";
+import {
+  TransactionMenu,
+  ItemCard,
+  Header,
+  LoadingIndicator,
+} from "../components";
+import { Api, getChangeDenomination } from "../service";
 import { Container, Row, Col } from "react-bootstrap";
-import Api from "../service/Api";
 
 class App extends React.Component {
   constructor(props) {
@@ -119,17 +120,7 @@ class App extends React.Component {
   };
 
   render() {
-    const {
-      inventory,
-      itemToBuy,
-      error,
-      change,
-      returnChange,
-      onSuccess,
-      total,
-      loading,
-      buttonLoading,
-    } = this.state;
+    const { inventory, loading, ...rest } = this.state;
     return (
       <Container fluid className="p-5">
         <Header title={"Vending Machine"} />
@@ -155,18 +146,11 @@ class App extends React.Component {
             )}
           </Col>
 
-          <Menu
-            total={total}
-            onSuccess={onSuccess}
-            hideReturnChange={returnChange}
-            change={change}
-            moneyAmounts={this.state.amounts}
+          <TransactionMenu
+            {...rest}
             onAddMoneyClick={this.handleOnAddMoneyClick}
-            itemToBuy={itemToBuy}
             onMakePurchaseClick={this.handleBuyItem}
             onReturnChangeClick={this.handleOnReturnChange}
-            error={error}
-            buttonLoading={buttonLoading}
           />
         </Row>
       </Container>
