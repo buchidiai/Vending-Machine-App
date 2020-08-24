@@ -15,6 +15,7 @@ export const TransactionMenu = ({
   onReturnChangeClick,
   onSuccess,
   buttonLoading,
+  returnChange,
 }) => {
   return (
     <Col lg={4}>
@@ -34,6 +35,7 @@ export const TransactionMenu = ({
       />
       <hr />
       <GetChange
+        returnChange={returnChange}
         onReturnChangeClick={onReturnChangeClick}
         total={total}
         change={change}

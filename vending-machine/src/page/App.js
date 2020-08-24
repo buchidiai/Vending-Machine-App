@@ -43,10 +43,13 @@ class App extends React.Component {
 
   handleFetchAllItems = async () => {
     try {
+      //get products
       const items = await this.api.getAll();
 
+      //set state and hide loading
       this.setState({ inventory: items.data, loading: false });
     } catch (error) {
+      //catch and show error error
       this.setState({
         error: {
           hasError: true,
@@ -58,43 +61,60 @@ class App extends React.Component {
   };
 
   handleOnAddMoneyClick = (amount) => {
-    this.setState({ total: this.state.total + amount, change: [] });
+    //add money to vending machine
+    this.setState({
+      returnChange: false,
+      total: this.state.total + amount,
+      change: [],
+    });
   };
 
   handleBuyItem = async (item) => {
     const { id } = item;
     const { total } = this.state;
 
+    //clear messages
     this.setState({
+      returnChange: false,
       error: { hasError: false, message: "" },
       buttonLoading: true,
     });
 
     try {
+      //purchase item  by passing id and ammount inserted to machine
       const items = await this.api.buyItem(total.toFixed(2), id);
 
+      //set change, and message
       this.setState({
+        returnChange: true,
         buttonLoading: false,
         total: 0,
         change: items.data,
         onSuccess: { message: "Thank you!!" },
       });
-
+      //fetch items again
       this.handleFetchAllItems();
     } catch (error) {
+      //set errors
       setTimeout(() => {
         this.setState({
-          error: { hasError: true, message: error.response.data.message },
+          error: {
+            hasError: true,
+            message: error.response.data.message,
+          },
           buttonLoading: false,
         });
       }, 500);
 
+      //fetch items again
       this.handleFetchAllItems();
     }
   };
 
   handleOnItemClick = (item) => {
+    //set item clicked on
     this.setState({
+      returnChange: false,
       itemToBuy: item,
       change: [],
       error: { hasError: false, message: "" },
@@ -104,11 +124,15 @@ class App extends React.Component {
 
   handleOnReturnChange = () => {
     const { total } = this.state;
+    //get change denonimations
     const change = getChangeDenomination(total);
 
+    //clear change
     this.setState({ change: [] });
 
+    //set change state
     this.setState({
+      returnChange: true,
       error: { hasError: false, message: "" },
       total: 0,
       change: change,
