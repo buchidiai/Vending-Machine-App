@@ -150,13 +150,13 @@ class App extends React.Component {
         <Header title={"Vending Machine"} />
         <hr />
         <Row>
-          <Col sm={8}>
+          <Col>
             {loading ? (
               <Row lg={3}>
                 <LoadingIndicator />
               </Row>
             ) : (
-              <Row lg={3}>
+              <Row>
                 {inventory.map((p, i) => {
                   return (
                     <ItemCard
